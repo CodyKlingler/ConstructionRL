@@ -1,0 +1,12 @@
+{
+	"interval": 0.3,
+	"seed": 0,
+	"dir": "data/NewYork/16_3/",
+	"roadnetFile": "roadnet_16_3.json", 
+	"flowFile": "anon_16_3_newyork_real.json", 
+	"rlTrafficLight": false,
+	"laneChange": true,
+	"saveReplay": true,
+	"roadnetLogFile": "replay_roadnet.json", 
+	"replayLogFile": "replay.txt"
+}

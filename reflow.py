@@ -6,9 +6,12 @@ from numpy import random
 
 # what ratio of the data should the std. dev.
 dist_perc = .15
+input_file = "jinan_base/anon_3_4_jinan_real.json"
+output_file = "jinan_normalized/anon_3_4_jinan_real.json"
+
 
 # read input.json
-flow = open("test_simulation/flow.json", "r")
+flow = open(input_file, "r")
 flow_js = json.loads(flow.read())
 
 
@@ -27,10 +30,10 @@ for v in range(0,len(flow_js)):
     n = flow_js[v]['interval']
     new_n = random.normal(n, dist_perc*n)
     new_n = round(new_n,1)
-    flow_js[v]['interval'] = new_n # change to normal dist.
-    flow_js[v]['startTime'] = round(random.random_sample() * n,1)
+    #flow_js[v]['interval'] = new_n # change to normal dist.
+    #flow_js[v]['startTime'] = round(random.random_sample() * n,1)
     
 
 # dump output.json
-out_js = open('test_simulation copy/flow.json', 'w')
+out_js = open(output_file, 'w')
 out_js.write(json.dumps(flow_js, indent=2))
