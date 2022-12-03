@@ -9,8 +9,10 @@ dist_perc = .15
 input_file = '4x4 test/flow.json'#"jinan_base/anon_3_4_jinan_real.json"
 output_file ='4x4 normal/flow.json'#"jinan_normalized/anon_3_4_jinan_real.json"
 
-def normalize_traffic_flow(flow_path:str, output_path:str, deviation:int) -> str:
+def normalize_traffic_flow(config_path:str, deviation:int) -> str:
+
     
+
     # read input.json
     flow = open(input_file, "r")
     flow_js = json.loads(flow.read())

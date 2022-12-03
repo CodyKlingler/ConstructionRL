@@ -21,7 +21,7 @@ deviation = .15 # deviation to normalize data to (percent of original)
 n_steps = 400
     ############# END  SETTINGS##############
 
-# go to normalized foler
+# go to normalized folder
 if normalized:
     selected_scenario += 'normalized/' if normalized else ''
 
@@ -43,6 +43,7 @@ eng = cityflow.Engine(selected_scenario, thread_num=4)
 # create a construction routing object for the simulation
 router: construction_router = construction_router(eng, get_roadnet(selected_scenario))
 
+# actually run simulation
 for i in range(0,n_steps):
 
     # print simulation progress
