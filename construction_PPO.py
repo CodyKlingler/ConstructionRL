@@ -12,17 +12,18 @@ from construction_4x4_env import *
 load = False
 logdir = "logdir"
 
-check_env(construction_4x2_env())
+# check_env(construction_4x2_env())
 
-env = construction_4x2_env()
+env = construction_4x4_env()
 if load:
     model = PPO.load("ppo_1x1")
 else:
     model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=logdir)
 
-log_interval = 10
-total_episodes = 1000
-model.learn(total_timesteps=env.steps_per_episode*total_episodes, log_interval=log_interval, tb_log_name="ppo1x1_log")
+log_interval = 1
+total_episodes = 20
+for i in range(0, total_episodes):
+    model.learn(total_timesteps=env.steps_per_episode*total_episodes, log_interval=log_interval, tb_log_name="ppo1x1_log")
 model.save("ppo_1x1")
 
 

@@ -13,7 +13,7 @@ def get_roadnet(config_path: str) -> str:
     config_obj = json.loads(config_file.read())
     return config_obj['dir'] + config_obj['roadnetFile']
 
-class construction_4x2_env(gym.Env):
+class construction_4x4_env(gym.Env):
     """
     State:
         Type: array[16]
@@ -29,37 +29,48 @@ class construction_4x2_env(gym.Env):
     metadata = {'render.modes':['human']}
     def __init__(self):
 
-        X = 4
-        Y = 2
+        
+        self.X = 6
+        self.Y = 6
+        
+        self.max_jobs = 3
 
-        self.config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/4x2/normalized")
+        self.steps_per_episode = 6000
+        self.sec_per_step = 1.0
+        self.construction_period = (self.steps_per_episode // (self.X * self.Y))*self.max_jobs
+
+        self.config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/4x4 test/normalized")
         self.cityflow = cityflow.Engine(os.path.join(self.config_dir, "config.json"), thread_num=1)
         self.router = construction_router(self.cityflow, get_roadnet(self.config_dir))
-        self.sec_per_step = 1.0
+      
         
-        self.possible_roads = [['road_2_2_2', 'road_1_2_0', 'road_3_2_2', 'road_2_2_0', 'road_4_2_2', 'road_3_2_0'],
-                                     ['road_1_2_3', 'road_1_1_1', 'road_2_2_3', 'road_2_1_1', 'road_3_2_3', 'road_3_1_1'], #'road_4_2_3', 'road_4_1_1',
-                                     ['road_2_1_2', 'road_1_1_0', 'road_3_1_2', 'road_2_1_0', 'road_4_1_2', 'road_3_1_0']]
-
+        self.possible_roads = [['road_2_4_2', 'road_3_4_2', 'road_4_4_2',  'road_1_4_0', 'road_2_4_0', 'road_3_4_0'],
+                                ['road_2_3_2', 'road_3_3_2', 'road_4_3_2',  'road_1_3_0', 'road_2_3_0', 'road_3_3_0'],
+                                ['road_2_2_2', 'road_3_2_2', 'road_4_2_2',  'road_1_2_0', 'road_2_2_0', 'road_3_2_0'],
+                                ['road_1_2_3', 'road_1_3_3', 'road_1_4_3', 'road_1_1_1', 'road_1_2_1', 'road_1_3_1'],
+                                ['road_2_2_3', 'road_2_3_3', 'road_2_4_3', 'road_2_1_1', 'road_2_2_1', 'road_2_3_1'],
+                                ['road_3_2_3', 'road_3_3_3', 'road_3_4_3', 'road_3_1_1', 'road_3_2_1', 'road_3_3_1']]
+                                
         self.jobs_left = [[1,1,1,1,1,1],   
-                        [1,1,1,1,1,1],
-                        [1,1,1,1,1,1]]
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1]]
 
         self.blocked_routes = []
         self.blocked_route_states = []
         self.route_time_left = []
-        self.max_jobs = 3
 
         for i in range(0, self.max_jobs):
             self.route_time_left.append(0)
 
-        self.steps_per_episode = 200
         self.current_step = 0
         self.is_done = False
         self.reward_range = (-float('inf'), float('inf'))
                                                         # n left + cur_jobs + traffic
-        self.observation_space = spaces.MultiDiscrete(([10]*6*3)+[3,6,3,6,3,6])
-        self.action_space = spaces.MultiDiscrete([3,6])
+        self.observation_space = spaces.MultiDiscrete(([10]*self.X*self.Y)+[self.X,self.Y]*self.max_jobs)
+        self.action_space = spaces.MultiDiscrete([self.X,self.Y])
 
     def step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
@@ -87,8 +98,8 @@ class construction_4x2_env(gym.Env):
             job_left = self.jobs_left[a][b] # see if the selected job needs completed
             valid_job = False
             if job_left <= 0:
-                for x in range(0,3):
-                    for y in range(0,6):
+                for x in range(0,self.X):
+                    for y in range(0,self.Y):
                         if self.jobs_left[x][y] > 0:
                             a = x
                             b = y
@@ -103,7 +114,7 @@ class construction_4x2_env(gym.Env):
             self.blocked_routes.append(self.possible_roads[a][b])
             self.blocked_route_states.append(a)
             self.blocked_route_states.append(b)
-            self.route_time_left.append(15)
+            self.route_time_left.append(self.construction_period)
         
         self.cityflow.next_step()
         self.router.reroute_construction(self.blocked_routes)
@@ -137,10 +148,13 @@ class construction_4x2_env(gym.Env):
 
         cur_job = self.blocked_route_states.copy()
 
-        while(len(cur_job) < 6):
+        while(len(cur_job) < self.max_jobs*2):
             cur_job.append(0)
 
-        n_left_state = self.jobs_left[0] + self.jobs_left[1] + self.jobs_left[2]
+        n_left_state = []
+        for row in self.jobs_left:
+            n_left_state += row
+
         state = n_left_state + cur_job
         return np.asarray(state, dtype=np.float32)
 
@@ -169,18 +183,15 @@ class construction_4x2_env(gym.Env):
         self.is_done = False
         self.current_step = 0
 
-        self.possible_roads = [['road_2_2_2', 'road_1_2_0', 'road_3_2_2', 'road_2_2_0', 'road_4_2_2', 'road_3_2_0'],
-                                     ['road_1_2_3', 'road_1_1_1', 'road_2_2_3', 'road_2_1_1', 'road_3_2_3', 'road_3_1_1'], #'road_4_2_3', 'road_4_1_1',
-                                     ['road_2_1_2', 'road_1_1_0', 'road_3_1_2', 'road_2_1_0', 'road_4_1_2', 'road_3_1_0']]
-
         self.jobs_left = [[1,1,1,1,1,1],   
-                        [1,1,1,1,1,1],
-                        [1,1,1,1,1,1]]
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1],
+                          [1,1,1,1,1,1]]
 
         self.blocked_routes = []
         self.blocked_route_states = []
         self.route_time_left = []
-        self.max_jobs = 3
-
         
         return self._get_state()

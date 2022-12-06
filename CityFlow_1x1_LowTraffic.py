@@ -52,7 +52,7 @@ class CityFlow_1x1_LowTraffic(gym.Env):
 
         self.sec_per_step = 1.0
 
-        self.steps_per_episode = 200
+        self.steps_per_episode = 1000
         self.current_step = 0
         self.is_done = False
         self.reward_range = (-float('inf'), float('inf'))

@@ -1,0 +1,12 @@
+{
+  "interval": 0.1,
+  "seed": 791821,
+  "dir": "data/Hangzhou/4_4/normalized/",
+  "roadnetFile": "roadnet_4_4.json",
+  "flowFile": "anon_4_4_hangzhou_real.json",
+  "rlTrafficLight": false,
+  "laneChange": true,
+  "saveReplay": true,
+  "roadnetLogFile": "replay_roadnet.json",
+  "replayLogFile": "replay.txt"
+}

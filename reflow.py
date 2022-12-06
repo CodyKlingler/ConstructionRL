@@ -63,6 +63,8 @@ def normalize_traffic_flow(scenario_path:str, deviation:float, interval:float, i
                 new_n = interval
             flow_js[v]['interval'] = new_n  #new_n # change to normal dist.
             flow_js[v]['startTime'] = round(pyrand.random()*interval, 2)
+            # flow_js[v]['endTime']
+            
 
 
     # dump output.json

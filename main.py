@@ -7,17 +7,18 @@ from construction import *
 # various simulations that may run. (points to folder containing config)
 ny_sim =    'data/NewYork/16_3/'
 nyc_sim =   'data/manhattan/'
-jinan_sim = 'data/Jinan/'
+jinan_sim = 'data/Jinan/3_4/'
 x4_sim =    'data/4x4 test/'
 x2_sim =    'data/4x2/'
+hang_sim =  'data/Hangzhou/4_4/'
 
     ############### SETTINGS ###############
-selected_scenario = x2_sim  # change to select the current simulation
+selected_scenario = x4_sim  # change to select the current simulation
 n_steps = 400               # the number of steps to simulate
 
 normalized = True           # set to true to adjust simulation according to normal distribution.
 deviation = .15             # deviation to normalize data to (percent of original)
-vehicle_mult = 3
+vehicle_mult = 4
 interval = 100
 interval_deviation = .33
     ############# END  SETTINGS##############
