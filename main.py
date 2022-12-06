@@ -4,29 +4,33 @@ import heapq
 from reflow import *
 from construction import *
 
-# various simulations that may run. (folder containing config)
+# various simulations that may run. (points to folder containing config)
 ny_sim =    'data/NewYork/16_3/'
 nyc_sim =   'data/manhattan/'
-jinan_sim = 'jinan_normalized/'
+jinan_sim = 'data/Jinan/'
+x4_sim =    'data/4x4 test/'
+x2_sim =    'data/4x2/'
 
     ############### SETTINGS ###############
-# change to select the current simulation
-selected_scenario = jinan_sim
+selected_scenario = x2_sim  # change to select the current simulation
+n_steps = 400               # the number of steps to simulate
 
-# set to true to adjust simulation according to normal distribution.
-normalized = False
-deviation = .15 # deviation to normalize data to (percent of original)
-
-# the number of steps to simulate
-n_steps = 400
+normalized = True           # set to true to adjust simulation according to normal distribution.
+deviation = .15             # deviation to normalize data to (percent of original)
+vehicle_mult = 3
+interval = 100
+interval_deviation = .33
     ############# END  SETTINGS##############
 
 # go to normalized folder
 if normalized:
-    selected_scenario += 'normalized/' if normalized else ''
+    normalize_traffic_flow(selected_scenario, deviation, interval, interval_deviation, vehicle_mult)
+    selected_scenario += 'normalized/'
 
 # select config file
-selected_scenario += 'config.json'
+selected_config = selected_scenario + 'config.json'
+
+
 
 # function to grab the roadnet inside a config.json
 def get_roadnet(config_path: str) -> str:
@@ -35,13 +39,13 @@ def get_roadnet(config_path: str) -> str:
     return config_obj['dir'] + config_obj['roadnetFile']
 
 # the routes blocked in the current simulation
-blocked_routes = ["road_1_2_1", "road_2_2_1", "road_4_2_1", "road_1_3_3", "road_2_3_3", "road_4_3_3"]
+blocked_routes = [] #"road_1_2_1", "road_2_2_1", "road_4_2_1", "road_1_3_3", "road_2_3_3", "road_4_3_3"]
 
 # create simulation
-eng = cityflow.Engine(selected_scenario, thread_num=4)
+eng = cityflow.Engine(selected_config, thread_num=4)
 
 # create a construction routing object for the simulation
-router: construction_router = construction_router(eng, get_roadnet(selected_scenario))
+router: construction_router = construction_router(eng, get_roadnet(selected_config))
 
 # actually run simulation
 for i in range(0,n_steps):
