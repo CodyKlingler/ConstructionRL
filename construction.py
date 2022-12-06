@@ -90,11 +90,13 @@ class construction_router:
             if v_id not in self.dict_success:
                 vehicle = self.eng.get_vehicle_info(v_id)
                 route = vehicle["route"].strip().split(" ")
-                if any(r in blocked_routes for r in route):
+                if any(r in blocked_routes for r in route) and len(route) > 2:
                     #print(f"\nVehicle {v_id}: {vehicle}")
                     # next_intersection = [x for x in roadnet["roads"] if x["id"] == route[0]][0]["startIntersection"] # probably
                     # next_intersection = [x for x in roadnet["roads"] if x["id"] == route[1]][0]["startIntersection"] # maybe
-                    next_intersection = [x for x in self.roadnet["roads"] if x["id"] == route[2]][0]["startIntersection"]
+
+                    next_intersection = [x for x in self.roadnet["roads"] if x["id"] == route[2]]
+                    next_intersection = next_intersection[0]["startIntersection"]
                     last_road = [x for x in self.roadnet["roads"] if x["id"] == route[-1]][0]
 
                     # proposed_route = find_fastest_path(intersections, next_intersection, last_road, blocked_routes)[1:] # probably

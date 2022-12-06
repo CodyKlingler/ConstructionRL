@@ -18,7 +18,7 @@ else:
     model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=logdir)
 
 log_interval = 10
-total_episodes = 100
+total_episodes = 200
 model.learn(total_timesteps=env.steps_per_episode*total_episodes, log_interval=log_interval, tb_log_name="ppo1x1_log")
 model.save("ppo_1x1")
 
