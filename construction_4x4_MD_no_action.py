@@ -13,9 +13,10 @@ def get_roadnet(config_path: str) -> str:
     config_obj = json.loads(config_file.read())
     return config_obj['dir'] + config_obj['roadnetFile']
 
-class construction_4x4_MD_no_rand(gym.Env):
+# action is ignored. next road is deterministic from list
+class construction_4x4_MD_no_action(gym.Env):
     def __init__(self):
-        self.name = "construction_4x4_MD_no_rand"
+        self.name = "construction_4x4_MD_no_action"
         self.X = 6
         self.Y = 6
         

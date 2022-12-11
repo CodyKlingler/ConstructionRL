@@ -6,8 +6,6 @@ import numpy as np
 import os
 from construction_router import *
 import json
-from numpy import random
-import random as pyrand
 
     # function to grab the roadnet inside a config.json
 def get_roadnet(config_path: str) -> str:
@@ -15,9 +13,10 @@ def get_roadnet(config_path: str) -> str:
     config_obj = json.loads(config_file.read())
     return config_obj['dir'] + config_obj['roadnetFile']
 
-class construction_4x4_MD(gym.Env):
+# no construction is applied. (lower bound on wait time) 
+class construction_4x4_MD_no_cons(gym.Env):
     def __init__(self):
-        self.name = "construction_4x4_MD"
+        self.name = "construction_4x4_MD_no_cons"
         self.X = 6
         self.Y = 6
         
@@ -86,12 +85,8 @@ class construction_4x4_MD(gym.Env):
             job_left = self.jobs_left[a][b] # see if the selected job needs completed
             valid_job = False
             if job_left <= 0: # find a random job of the ones remaining
-                rand_x = np.arange(self.X)
-                rand_y = np.arange(self.Y)
-                random.shuffle(rand_x)
-                random.shuffle(rand_x)
-                for x in rand_x:
-                    for y in rand_y:
+                for x in range(0,self.X):
+                    for y in range(0,self.Y):
                         if self.jobs_left[x][y] > 0:
                             a = x
                             b = y
@@ -109,7 +104,7 @@ class construction_4x4_MD(gym.Env):
             self.route_time_left.append(self.construction_period)
         
         self.cityflow.next_step()
-        self.router.reroute_construction(self.blocked_routes)
+        # self.router.reroute_construction(self.blocked_routes)
 
         state = self._get_state()
         reward = self._get_reward()

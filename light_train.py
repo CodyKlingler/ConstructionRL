@@ -5,7 +5,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import DQN, PPO
 
 from light_1x1_MD import CityFlow_1x1_LowTraffic
-from construction_4x4_MD import *
+from construction_4x4_MD_rand import *
 
 
 # make true to load the model saved with name model_n
