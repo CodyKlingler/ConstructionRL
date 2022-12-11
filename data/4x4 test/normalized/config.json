@@ -1,6 +1,6 @@
 {
   "interval": 1.0,
-  "seed": 814347,
+  "seed": 9789318,
   "dir": "data/4x4 test/normalized/",
   "roadnetFile": "roadnet.json",
   "flowFile": "flow.json",
