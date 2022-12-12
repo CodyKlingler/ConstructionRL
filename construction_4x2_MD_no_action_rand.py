@@ -15,10 +15,10 @@ def get_roadnet(config_path: str) -> str:
     config_obj = json.loads(config_file.read())
     return config_obj['dir'] + config_obj['roadnetFile']
 
-class construction_4x4_MD_no_action_rand(gym.Env):
+class construction_4x2_MD_no_action_rand(gym.Env):
     def __init__(self):
-        self.name = "construction_4x4_MD_no_action_rand"
-        self.X = 6
+        self.name = "construction_4x2_MD_no_action_rand"
+        self.X = 3
         self.Y = 6
         
         self.max_jobs = 3
@@ -27,24 +27,19 @@ class construction_4x4_MD_no_action_rand(gym.Env):
         self.sec_per_step = 1.0
         self.construction_period = (self.steps_per_episode // (self.X * self.Y))*self.max_jobs
 
-        self.config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/4x4 test/normalized")
+        self.config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/4x2/normalized")
+        print(self.config_dir)
         self.cityflow = cityflow.Engine(os.path.join(self.config_dir, "config.json"), thread_num=1)
         self.router = construction_router(self.cityflow, get_roadnet(self.config_dir))
-      
+        self.sec_per_step = 1.0
         
-        self.possible_roads = [['road_2_4_2', 'road_3_4_2', 'road_4_4_2',  'road_1_4_0', 'road_2_4_0', 'road_3_4_0'],
-                                ['road_2_3_2', 'road_3_3_2', 'road_4_3_2',  'road_1_3_0', 'road_2_3_0', 'road_3_3_0'],
-                                ['road_2_2_2', 'road_3_2_2', 'road_4_2_2',  'road_1_2_0', 'road_2_2_0', 'road_3_2_0'],
-                                ['road_1_2_3', 'road_1_3_3', 'road_1_4_3', 'road_1_1_1', 'road_1_2_1', 'road_1_3_1'],
-                                ['road_2_2_3', 'road_2_3_3', 'road_2_4_3', 'road_2_1_1', 'road_2_2_1', 'road_2_3_1'],
-                                ['road_3_2_3', 'road_3_3_3', 'road_3_4_3', 'road_3_1_1', 'road_3_2_1', 'road_3_3_1']]
-                                
+        self.possible_roads = [['road_2_2_2', 'road_1_2_0', 'road_3_2_2', 'road_2_2_0', 'road_4_2_2', 'road_3_2_0'],
+                                     ['road_1_2_3', 'road_1_1_1', 'road_2_2_3', 'road_2_1_1', 'road_3_2_3', 'road_3_1_1'], #'road_4_2_3', 'road_4_1_1',
+                                     ['road_2_1_2', 'road_1_1_0', 'road_3_1_2', 'road_2_1_0', 'road_4_1_2', 'road_3_1_0']]
+
         self.jobs_left = [[1,1,1,1,1,1],   
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1]]
+                        [1,1,1,1,1,1],
+                        [1,1,1,1,1,1]]
 
         self.blocked_routes = []
         self.blocked_route_states = []
@@ -81,21 +76,25 @@ class construction_4x4_MD_no_action_rand(gym.Env):
             
         # if there are unscheduled workers
         if len(self.blocked_routes) < self.max_jobs:
+            a = action[0]
+            b = action[1]
+            job_left = self.jobs_left[a][b] # see if the selected job needs completed
             valid_job = False
-            a = 0
-            b = 0
-            rand_x = np.arange(self.X)
-            rand_y = np.arange(self.Y)
-            random.shuffle(rand_x)
-            random.shuffle(rand_x)
-            for x in rand_x:
-                for y in rand_y:
-                    if self.jobs_left[x][y] > 0:
-                        a = x
-                        b = y
-                        valid_job = True
-            if not valid_job and len(self.blocked_routes) == 0: # no job found and no jobs remaining
-                self.is_done = True
+            if job_left <= 0: # find a random job of the ones remaining
+                rand_x = np.arange(self.X)
+                rand_y = np.arange(self.Y)
+                random.shuffle(rand_x)
+                random.shuffle(rand_x)
+                for x in rand_x:
+                    for y in rand_y:
+                        if self.jobs_left[x][y] > 0:
+                            a = x
+                            b = y
+                            valid_job = True
+                if not valid_job and len(self.blocked_routes) == 0: # no job found and no jobs remaining
+                    self.is_done = True
+            else:
+                valid_job = True
 
             self.jobs_left[a][b] -= 1
             self.jobs_left[a][b] = 0 if self.jobs_left[a][b] < 0 else self.jobs_left[a][b]
@@ -172,11 +171,9 @@ class construction_4x4_MD_no_action_rand(gym.Env):
         self.current_step = 0
 
         self.jobs_left = [[1,1,1,1,1,1],   
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1],
-                          [1,1,1,1,1,1]]
+                        [1,1,1,1,1,1],
+                        [1,1,1,1,1,1]]
+
 
         self.blocked_routes = []
         self.blocked_route_states = []

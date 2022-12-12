@@ -80,21 +80,17 @@ class construction_4x4_MD_no_action(gym.Env):
             
         # if there are unscheduled workers
         if len(self.blocked_routes) < self.max_jobs:
-            a = action[0]
-            b = action[1]
-            job_left = self.jobs_left[a][b] # see if the selected job needs completed
+            a = 0
+            b = 0
             valid_job = False
-            if job_left <= 0: # find a random job of the ones remaining
-                for x in range(0,self.X):
-                    for y in range(0,self.Y):
-                        if self.jobs_left[x][y] > 0:
-                            a = x
-                            b = y
-                            valid_job = True
-                if not valid_job and len(self.blocked_routes) == 0: # no job found and no jobs remaining
-                    self.is_done = True
-            else:
-                valid_job = True
+            for x in range(0,self.X):
+                for y in range(0,self.Y):
+                    if self.jobs_left[x][y] > 0:
+                        a = x
+                        b = y
+                        valid_job = True
+            if not valid_job and len(self.blocked_routes) == 0: # no job found and no jobs remaining
+                self.is_done = True
 
             self.jobs_left[a][b] -= 1
             self.jobs_left[a][b] = 0 if self.jobs_left[a][b] < 0 else self.jobs_left[a][b]

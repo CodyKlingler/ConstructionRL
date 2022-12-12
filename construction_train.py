@@ -13,15 +13,19 @@ from construction_4x4_MD_no_action import *
 from construction_4x4_MD_no_cons import *
 from construction_4x4_MD_rand import *
 
+from construction_4x2_MD_first import *
+from construction_4x2_MD_no_action_rand import *
+from construction_4x2_MD_no_cons import *
+
 # make true to load the model saved with name model_n
 load = False
 
 
-env_list = [construction_4x4_MD_first(),
-            construction_4x4_MD_no_action_rand(),
-            construction_4x4_MD_no_action(),
-            construction_4x4_MD_no_cons(),
-            construction_4x4_MD_rand() ]
+env_list = [
+            construction_4x2_MD_first(),
+            construction_4x2_MD_no_cons(),
+            construction_4x2_MD_no_action_rand(), ]
+        
 model_list = []
 for env in env_list:
     print(env.name)
@@ -31,13 +35,12 @@ for env in env_list:
 
 
 log_interval = 1
-total_episodes = 1
-for i in range(0, total_episodes):
-    for j in range(0,len(env_list)):
-        env = env_list[j]
-        print("aa: " + env.name)
-        model = model_list[j]
-        model.learn(total_timesteps=env.steps_per_episode*total_episodes, log_interval=log_interval, tb_log_name=env.name)
+total_episodes = 30
+for j in range(0,len(env_list)):
+    env = env_list[j]
+    print("aa: " + env.name)
+    model = model_list[j]
+    model.learn(total_timesteps=env.steps_per_episode*total_episodes, log_interval=log_interval, tb_log_name=env.name)
 
 # model.save("trained_models/"+env.name)
 
